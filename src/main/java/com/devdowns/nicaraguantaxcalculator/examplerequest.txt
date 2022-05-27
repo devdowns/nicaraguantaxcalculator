@@ -1,0 +1,9 @@
+send request to: localhost:8080/api/salary
+
+attach the following json data to test it
+
+{
+    "monthlySalaryInUSD": 2000.00,
+    "USDToNIOExchangeRate": 36.00,
+    "isPayingForINSS": true
+}
