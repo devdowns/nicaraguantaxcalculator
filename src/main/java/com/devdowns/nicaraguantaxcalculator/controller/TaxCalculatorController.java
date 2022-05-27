@@ -1,6 +1,6 @@
 package com.devdowns.nicaraguantaxcalculator.controller;
 
-import com.devdowns.nicaraguantaxcalculator.Salary;
+import com.devdowns.nicaraguantaxcalculator.SalaryInformation;
 import com.devdowns.nicaraguantaxcalculator.SalaryDetail;
 import com.devdowns.nicaraguantaxcalculator.service.SalaryDetailService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class TaxCalculatorController {
     private final SalaryDetailService salaryDetailService;
 
     @GetMapping("/salary")
-    public ResponseEntity<SalaryDetail> getSalaryDetails(@RequestBody Salary salary){
+    public ResponseEntity<SalaryDetail> getSalaryDetails(@RequestBody SalaryInformation salary){
         log.info("hit controller");
         var details = salaryDetailService.getSalaryDetails(salary);
         return ResponseEntity.ok().body(details);

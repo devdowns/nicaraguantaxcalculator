@@ -3,7 +3,14 @@ send request to: localhost:8080/api/salary
 attach the following json data to test it
 
 {
-    "monthlySalaryInUSD": 2000.00,
-    "USDToNIOExchangeRate": 36.00,
+    "baseUSDSalary": 4000.00,
     "isPayingForINSS": true
 }
+
+    //https://www.dgi.gob.ni/FAQ/index.html?retenciones_definitivas.htm
+/*
+ El mecanismo básicamente es el mismo, usted parte del ingreso mensual menos
+ las deducciones que permite la Ley (INSS + Fondos de ahorro), proyecta a 12 meses
+ para obtener la expectativa anual, ubica en la tabla según el resultado y le resta
+ el ingreso base según el estrato, aplica el porcentaje al excedente de la base, al resultado le suma el impuesto base.
+*/

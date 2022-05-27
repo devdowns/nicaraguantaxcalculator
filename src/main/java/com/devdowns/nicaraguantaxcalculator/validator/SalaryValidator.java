@@ -1,6 +1,6 @@
 package com.devdowns.nicaraguantaxcalculator.validator;
 
-import com.devdowns.nicaraguantaxcalculator.Salary;
+import com.devdowns.nicaraguantaxcalculator.SalaryInformation;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,12 +14,11 @@ public class SalaryValidator {
     Predicate<BigDecimal> isNegative = value -> (value.compareTo(BigDecimal.ZERO) < 0);
 
 
-    public boolean isValid(Salary salary){
+    public boolean isValid(SalaryInformation salary){
 
        List<Object> salaryFields = List.of(
 
-                                    salary.getMonthlySalaryInUSD(),
-                                    salary.getUSDToNIOExchangeRate(),
+                                    salary.getBaseUSDSalary(),
                                     salary.getIsPayingForINSS());
 
        boolean isNotNull = salaryFields.stream().anyMatch(Objects::isNull);

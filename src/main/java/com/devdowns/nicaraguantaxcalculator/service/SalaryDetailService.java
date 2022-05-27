@@ -1,7 +1,7 @@
 package com.devdowns.nicaraguantaxcalculator.service;
 
 import com.devdowns.nicaraguantaxcalculator.NIOTaxBracket;
-import com.devdowns.nicaraguantaxcalculator.Salary;
+import com.devdowns.nicaraguantaxcalculator.SalaryInformation;
 import com.devdowns.nicaraguantaxcalculator.SalaryDetail;
 import com.devdowns.nicaraguantaxcalculator.validator.SalaryValidator;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,10 @@ import java.math.RoundingMode;
 public class SalaryDetailService {
 
     private final SalaryValidator salaryValidator;
+    private final BigDecimal USDToNIOExchangeRate = new BigDecimal(35.77);
 
-    public NIOTaxBracket findTaxBracket(Salary salary){
-        final var baseSalary = salary.getMonthlySalaryInUSD();
+    public NIOTaxBracket findTaxBracket(SalaryInformation salary){
+        final var baseSalary = salary.getBaseUSDSalary();
         for(NIOTaxBracket bracket : NIOTaxBracket.getTaxBrackets()){
             if(baseSalary.compareTo(bracket.getLowEnd()) >=0 && baseSalary.compareTo(bracket.getHighEnd()) <= 0){
                 log.info("bracket selected base tax {}", bracket.getBaseTax().toString());
@@ -29,7 +30,7 @@ public class SalaryDetailService {
         return null;
     }
 
-    public SalaryDetail getSalaryDetails(Salary salary){
+    public SalaryDetail getSalaryDetails(SalaryInformation salary){
 //        if(!salaryValidator.isValid(salary)){
 //            throw new RuntimeException("You forgot to add some fields we need monthlySalaryInUSD, USDToNIOExchangeRate & isPayingForINNS");
 //        }
@@ -38,7 +39,7 @@ public class SalaryDetailService {
         log.info(taxBracket.getBaseTax().toString());
         final var INSS = salary.getIsPayingForINSS() ? new BigDecimal(0.0625) : BigDecimal.ZERO;
         final var monthsPerYear = new BigDecimal(12);
-        final var monthlySalaryInNIO = salary.getMonthlySalaryInUSD().multiply(salary.getUSDToNIOExchangeRate());
+        final var monthlySalaryInNIO = salary.getBaseUSDSalary().multiply(USDToNIOExchangeRate);
         final var INSSMonthlyQuota = monthlySalaryInNIO.multiply(INSS);
         final var YearlySalaryProjection = monthlySalaryInNIO.subtract(INSSMonthlyQuota).multiply(monthsPerYear);
 
@@ -51,15 +52,15 @@ public class SalaryDetailService {
                 .add(taxBracket.getBaseTax());
 
         final var monthlyTaxToPayInUSD = taxToPayPerYear
-                .divide(salary.getUSDToNIOExchangeRate(), 2, RoundingMode.HALF_UP)
+                .divide(USDToNIOExchangeRate, 2, RoundingMode.HALF_UP)
                 .divide(monthsPerYear,2, RoundingMode.HALF_UP);
 
-        final var INSSMonthlyQuotaInUSD = INSSMonthlyQuota.divide(salary.getUSDToNIOExchangeRate(),2, RoundingMode.HALF_UP);
+        final var INSSMonthlyQuotaInUSD = INSSMonthlyQuota.divide(USDToNIOExchangeRate,2, RoundingMode.HALF_UP);
 
-        final var monthlyTakeHomeSalaryInUSD = salary.getMonthlySalaryInUSD()
+        final var monthlyTakeHomeSalaryInUSD = salary.getBaseUSDSalary()
                 .subtract(monthlyTaxToPayInUSD)
                 .subtract(INSSMonthlyQuotaInUSD);
 
-        return new SalaryDetail(salary.getMonthlySalaryInUSD(), monthlyTaxToPayInUSD, INSSMonthlyQuotaInUSD, monthlyTakeHomeSalaryInUSD);
+        return new SalaryDetail(salary.getBaseUSDSalary(), monthlyTaxToPayInUSD, INSSMonthlyQuotaInUSD, monthlyTakeHomeSalaryInUSD);
     }
 }
