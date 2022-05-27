@@ -1,54 +1,23 @@
 package com.devdowns.nicaraguantaxcalculator;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Slf4j
 @AllArgsConstructor
+@Data
 public class Salary {
 
-    private final NIOTaxBracket taxBracket;
-    private final BigDecimal MonthlySalaryInUSD;
+
+    private final BigDecimal monthlySalaryInUSD;
     private final BigDecimal USDToNIOExchangeRate;
     private final Boolean isPayingForINSS;
 
 
-    public void computeTaxes(){
 
-        final var INSS = isPayingForINSS ? new BigDecimal(0.0625) : BigDecimal.ZERO;
-        final var monthsPerYear = new BigDecimal(12);
-        final var monthlySalaryInNIO = MonthlySalaryInUSD.multiply(USDToNIOExchangeRate);
-        final var INSSMonthlyQuota = monthlySalaryInNIO.multiply(INSS);
-        final var YearlySalaryProjection = monthlySalaryInNIO.subtract(INSSMonthlyQuota).multiply(monthsPerYear);
-
-        final var amountExceedingBracket = YearlySalaryProjection
-                .subtract(taxBracket.getLowEnd())
-                .subtract(new BigDecimal(100_000.00));
-
-        final var taxToPayPerYear = amountExceedingBracket
-                .multiply(taxBracket.getPercentageApplicable())
-                .add(taxBracket.getBaseTax());
-
-        final var monthlyTaxToPayInUSD = taxToPayPerYear
-                .divide(USDToNIOExchangeRate, 2, RoundingMode.HALF_UP)
-                .divide(monthsPerYear,2, RoundingMode.HALF_UP);
-
-        final var INSSMonthlyQuotaInUSD = INSSMonthlyQuota.divide(USDToNIOExchangeRate,2, RoundingMode.HALF_UP);
-
-        final var monthlyTakeHomeSalaryInUSD = MonthlySalaryInUSD
-                .subtract(monthlyTaxToPayInUSD)
-                .subtract(INSSMonthlyQuotaInUSD);
-
-
-        log.info("Rip monies, out of ${} per month",
-                MonthlySalaryInUSD);
-        log.info("You have to pay an IR tax of ${} & ${} of INSS",
-                monthlyTaxToPayInUSD, INSSMonthlyQuotaInUSD);
-        log.info("You only get to take home ${}",monthlyTakeHomeSalaryInUSD);
-    }
 
     //https://www.dgi.gob.ni/FAQ/index.html?retenciones_definitivas.htm
 /*
